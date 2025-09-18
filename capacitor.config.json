@@ -1,0 +1,11 @@
+{
+  "appId": "com.whitewall.alaa",
+  "appName": "ALAA",
+  "webDir": "out",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://alaa-whitewall.vercel.app",
+    "cleartext": true
+  }
+}
+

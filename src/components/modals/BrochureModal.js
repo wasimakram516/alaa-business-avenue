@@ -33,7 +33,7 @@ export default function BrochureModal({ open, onClose, fileUrl }) {
         elevation={3}
         sx={{
           position: "absolute",
-          top: -35,
+          top: -20,
           left: "50%",
           transform: "translateX(-50%)",
           bgcolor: "maroon",

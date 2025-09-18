@@ -19,7 +19,7 @@ export default function SignupModal({ open, onClose, signupLink }) {
       PaperProps={{
         sx: {
           width: "95vw",
-          height: "90vh",
+          height: "85vh",
           mt: "5%",
           mx: "auto",
           borderRadius: 2,
@@ -61,8 +61,8 @@ export default function SignupModal({ open, onClose, signupLink }) {
         onClick={onClose}
         sx={{
           position: "absolute",
-          right: 16,
-          top: -35,
+          left: 16,
+          top: 16,
           color: "error.main",
           zIndex: 999,
           bgcolor: "rgba(255,255,255,0.8)",
