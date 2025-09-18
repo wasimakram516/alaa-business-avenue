@@ -27,11 +27,6 @@ export default function SignupModal({ open, onClose, signupLink }) {
           overflow: "visible",
         },
       }}
-      sx={{
-        "& .MuiDialog-container": {
-          alignItems: "flex-start",
-        },
-      }}
     >
       {/* Floating label */}
       <Paper
