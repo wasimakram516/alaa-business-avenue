@@ -1,15 +1,98 @@
 "use client";
+
+import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogContent,
   IconButton,
   Paper,
   Typography,
+  Box,
 } from "@mui/material";
+
 import CloseIcon from "@mui/icons-material/Close";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 
-export default function BrochureModal({ open, onClose, fileUrl }) {
+const ZOOM_MIN = 0.6;
+const ZOOM_MAX = 3;
+const ZOOM_STEP = 0.2;
+
+export default function BrochureModal({ open, onClose }) {
+  const containerRef = useRef(null);
+
+  const [pages, setPages] = useState([]);
+  const [title, setTitle] = useState("Brochure");
+  const [zoom, setZoom] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  /* =========================
+     LOAD PDF IMAGES FROM JSON
+  ========================= */
+  useEffect(() => {
+    if (!open) return;
+
+    setLoading(true);
+
+    fetch("/config/kiosk-config.json")
+      .then((res) => res.json())
+      .then((data) => {
+        const brochure = data?.media?.find((m) => m.type === "pdf_images");
+
+        if (brochure) {
+          setPages(brochure.pages || []);
+          setTitle(brochure.title || "Brochure");
+        } else {
+          setPages([]);
+        }
+      })
+      .catch(() => {
+        setPages([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [open]);
+
+  /* =========================
+     ZOOM CONTROLS
+  ========================= */
+  const zoomIn = () =>
+    setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2)));
+
+  const zoomOut = () =>
+    setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2)));
+
+  const resetZoom = () => setZoom(1);
+
+  const handleWheel = (e) => {
+    if (!e.ctrlKey) return;
+    e.preventDefault();
+    e.deltaY < 0 ? zoomIn() : zoomOut();
+  };
+
+  const handleDoubleClick = () => {
+    setZoom((z) => (z === 1 ? 2 : 1));
+  };
+
+  /* =========================
+     CENTER HORIZONTAL SCROLL
+  ========================= */
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    if (zoom > 1) {
+      el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+    } else {
+      el.scrollLeft = 0;
+    }
+  }, [zoom]);
+
+  if (!open) return null;
+
   return (
     <Dialog
       open={open}
@@ -28,7 +111,7 @@ export default function BrochureModal({ open, onClose, fileUrl }) {
       }}
       sx={{ "& .MuiDialog-container": { alignItems: "flex-start" } }}
     >
-      {/* Floating label */}
+      {/* Floating Title */}
       <Paper
         elevation={3}
         sx={{
@@ -44,14 +127,14 @@ export default function BrochureModal({ open, onClose, fileUrl }) {
           px: 4,
           py: 0.5,
           borderRadius: "6px",
-          zIndex: 999,
+          zIndex: 1200,
         }}
       >
         <MenuBookIcon fontSize="small" />
-        <Typography variant="subtitle1">Brochure</Typography>
+        <Typography variant="subtitle1">{title}</Typography>
       </Paper>
 
-      {/* Close button */}
+      {/* Close */}
       <IconButton
         onClick={onClose}
         sx={{
@@ -59,28 +142,110 @@ export default function BrochureModal({ open, onClose, fileUrl }) {
           right: 16,
           top: 16,
           color: "error.main",
-          zIndex: 999,
-          bgcolor: "rgba(255,255,255,0.8)",
-          "&:hover": { bgcolor: "rgba(0,0,0,0.7)" },
+          zIndex: 1200,
+          bgcolor: "rgba(255,255,255,0.85)",
+          "&:hover": { bgcolor: "rgba(0,0,0,0.7)", color: "#fff" },
         }}
       >
         <CloseIcon />
       </IconButton>
 
-      <DialogContent sx={{ p: 0, height: "100%" }}>
-        {fileUrl ? (
-          <iframe
-            src={`https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(
-              fileUrl
-            )}`}
-            style={{ width: "100%", height: "100%", border: "none" }}
-          />
-        ) : (
-          <p style={{ textAlign: "center", marginTop: "2rem" }}>
+      {/* CONTENT */}
+      <DialogContent
+        ref={containerRef}
+        onWheel={handleWheel}
+        onDoubleClick={handleDoubleClick}
+        sx={{
+          height: "100%",
+          overflowY: "auto",
+          overflowX: zoom > 1 ? "auto" : "hidden",
+          p: 0,
+          cursor: zoom > 1 ? "grab" : "zoom-in",
+          "&:active": { cursor: "grabbing" },
+        }}
+      >
+        {loading ? (
+          <Typography align="center" mt={4}>
+            Loading brochure…
+          </Typography>
+        ) : pages.length === 0 ? (
+          <Typography align="center" mt={4}>
             No brochure available.
-          </p>
+          </Typography>
+        ) : (
+          <Box
+            sx={{
+              width: `${zoom * 100}%`,
+              minWidth: "100%",
+              margin: "0 auto",
+            }}
+          >
+            {pages.map((src, index) => (
+              <img
+                key={index}
+                src={src}
+                alt={`Page ${index + 1}`}
+                draggable={false}
+                loading="lazy"
+                style={{
+                  width: "100%",
+                  display: "block",
+                  margin: 0,
+                  padding: 0,
+                  borderRadius: 0,
+                  background: "white",
+                }}
+              />
+            ))}
+          </Box>
         )}
       </DialogContent>
+
+      {/* FLOATING ZOOM CONTROLS */}
+      <Paper
+        elevation={4}
+        sx={{
+          position: "absolute",
+          bottom: 24,
+          left: "50%",
+          transform: "translateX(-50%)",
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          px: 2,
+          py: 0.5,
+          borderRadius: "999px",
+          bgcolor: "rgba(0,0,0,0.85)",
+          color: "white",
+          zIndex: 1300,
+        }}
+      >
+        <Typography variant="body2" sx={{ minWidth: 70 }}>
+          {Math.round(zoom * 100)}%
+        </Typography>
+
+        <IconButton
+          size="small"
+          onClick={zoomOut}
+          disabled={zoom <= ZOOM_MIN}
+          sx={{ color: "white" }}
+        >
+          <RemoveIcon />
+        </IconButton>
+
+        <IconButton size="small" onClick={resetZoom} sx={{ color: "white" }}>
+          <ZoomOutMapIcon />
+        </IconButton>
+
+        <IconButton
+          size="small"
+          onClick={zoomIn}
+          disabled={zoom >= ZOOM_MAX}
+          sx={{ color: "white" }}
+        >
+          <AddIcon />
+        </IconButton>
+      </Paper>
     </Dialog>
   );
 }

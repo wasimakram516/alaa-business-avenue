@@ -54,8 +54,8 @@ const buttonsConfig = [
     delay: "1.5s",
   },
   {
-    text: "Sign-Up",
-    size: "clamp(8rem, 28vw, 28rem)",
+    text: "Register Your Interest",
+    size: "clamp(10rem, 30vw, 30rem)",
     x: "15%",
     y: "80%",
     icon: <HowToRegIcon sx={{ fontSize: "clamp(3rem, 10vw, 12rem)" }} />,
