@@ -60,7 +60,7 @@ const buttonsConfig = [
   {
     text: "Register Your Interest",
     modalKey: "sign-up",
-    size: "clamp(10rem, 30vw, 30rem)",
+    size: "clamp(10rem, 33vw, 32rem)",
     x: "15%",
     y: "80%",
     icon: <HowToRegIcon sx={{ fontSize: "clamp(3rem, 10vw, 12rem)" }} />,
