@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 const buttonsConfig = [
   {
     text: "Photos",
+    modalKey: "photos",
     size: "clamp(8rem, 28vw, 28rem)",
     x: "15%",
     y: "33%",
@@ -29,6 +30,7 @@ const buttonsConfig = [
   },
   {
     text: "Brochure",
+    modalKey: "brochure",
     size: "clamp(10rem, 33vw, 32rem)",
     x: "52%",
     y: "40%",
@@ -37,6 +39,7 @@ const buttonsConfig = [
   },
   {
     text: "Video",
+    modalKey: "video",
     size: "clamp(8rem, 28vw, 28rem)",
     x: "10%",
     y: "56%",
@@ -47,6 +50,7 @@ const buttonsConfig = [
   },
   {
     text: "Location",
+    modalKey: "location",
     size: "clamp(8rem, 28vw, 28rem)",
     x: "55%",
     y: "68%",
@@ -55,6 +59,7 @@ const buttonsConfig = [
   },
   {
     text: "Register Your Interest",
+    modalKey: "sign-up",
     size: "clamp(10rem, 30vw, 30rem)",
     x: "15%",
     y: "80%",
@@ -179,7 +184,7 @@ export default function MenuPage() {
           <Button
             key={index}
             variant="contained"
-            onClick={(e) => handleClick(e, btn.text.toLowerCase())}
+            onClick={(e) => handleClick(e, btn.modalKey)}
             sx={{
               position: "absolute",
               top: btn.y,
