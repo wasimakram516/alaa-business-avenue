@@ -43,7 +43,7 @@ export default function BrochureModal({ open, onClose }) {
 
         if (brochure) {
           setPages(brochure.pages || []);
-          setTitle(brochure.title || "Brochure");
+          setTitle("Brochure");
         } else {
           setPages([]);
         }
